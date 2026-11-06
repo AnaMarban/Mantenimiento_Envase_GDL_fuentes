@@ -1,0 +1,326 @@
+
+<title>CEMEX GDL Reportes Dynamix</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=Source+Sans+3:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: misma consola blanca del Reporte de Fallas Envase — encabezado de marca, barra fija de semana, resumen antes del detalle. Tema claro único a propósito. */
+:root{
+  --bg:#ffffff;--panel:#ffffff;--panel-2:#eef2f6;--line:#d8dfe7;--line-strong:#b6c2cf;
+  --fg:#121c2b;--fg-2:#475769;--fg-3:#6b7a8b;
+  --brand:#0a3a8c;--brand-soft:#e5ecf8;--brand-red:#d81e27;
+  --bad:#c62f2f;--bad-soft:#fbe4e2;--warn:#b86e00;--warn-soft:#fcefd6;--ok:#2f7d4f;--ok-soft:#e1f1e6;
+  --t1:#0a3a8c;--t2:#c62f2f;--t3:#b86e00;--t4:#2f7d4f;--t5:#6b4fa0;--t6:#3d8fb0;--t7:#9c5b3c;--t8:#8a96a2;
+  --font-d:"Barlow Semi Condensed","Arial Narrow",Arial,sans-serif;
+  --font-b:"Source Sans 3","Segoe UI",system-ui,sans-serif;
+  --font-m:"JetBrains Mono",ui-monospace,Consolas,monospace;
+  --r:8px;color-scheme:light;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--font-b);font-size:15px;line-height:1.5}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--panel)}
+h1,h2,h3{font-family:var(--font-d);font-weight:600;margin:0;text-wrap:balance}
+h2{font-size:20px}h3{font-size:16px}
+button,select,input{font:inherit;color:inherit}
+button{cursor:pointer;border:1px solid var(--line-strong);background:var(--panel);border-radius:var(--r);padding:7px 12px;display:inline-flex;align-items:center;gap:6px}
+button:hover{border-color:var(--brand)}
+button.primary{background:var(--brand);border-color:var(--brand);color:#fff}
+button.link{border:0;background:none;padding:0;color:var(--brand);font-weight:600;text-decoration:underline;text-underline-offset:2px}
+button:focus-visible,select:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+select,input[type=search]{border:1px solid var(--line-strong);background:var(--panel);border-radius:var(--r);padding:6px 9px;min-width:0;font-size:14px}
+.mono{font-family:var(--font-m);font-variant-numeric:tabular-nums}
+.wrap{max-width:1320px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.lbl{font-family:var(--font-d);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--fg-3)}
+.sub{font-size:13px;color:var(--fg-2)}
+.hint{font-size:13px;color:var(--fg-3)}
+header.top{background:var(--panel);border-top:4px solid var(--brand);position:relative;z-index:20}
+header.top::after{content:"";display:block;height:2px;background:linear-gradient(90deg,var(--brand-red) 0 64px,var(--line) 64px)}
+.hrow{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:center;padding-block:14px 12px}
+.brand .eb{font-family:var(--font-d);font-weight:700;font-size:15px;letter-spacing:.14em;color:var(--brand)}
+.brand .eb b{color:var(--brand-red)}
+.brand h1{font-size:28px;font-weight:700}
+.hstat{flex:1 1 260px;display:flex;gap:6px 18px;flex-wrap:wrap;justify-content:flex-end;align-items:center}
+.hstat .it{display:grid;line-height:1.2}.hstat .it b{font-family:var(--font-d);font-size:17px;font-weight:600}
+nav.tabs{display:flex;gap:2px;overflow-x:auto}
+nav.tabs button{border:0;border-bottom:3px solid transparent;border-radius:0;background:none;padding:8px 14px;font-family:var(--font-d);font-size:16px;color:var(--fg-2);white-space:nowrap}
+nav.tabs button[aria-selected=true]{color:var(--brand);border-bottom-color:var(--brand);font-weight:600}
+nav.tabs .cnt{font-family:var(--font-m);font-size:11px;background:var(--panel-2);border-radius:999px;padding:0 6px;color:var(--fg-2)}
+.stick{position:relative;z-index:19;background:var(--panel-2);border-block:1px solid var(--line)}
+@media (min-width:900px){.stick{position:sticky;top:env(safe-area-inset-top,0px)}}
+.prow{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;padding-block:9px}
+main{padding-block:20px 60px;display:grid;gap:20px}
+.banner{border:1px solid var(--line-strong);background:var(--panel-2);border-radius:var(--r);padding:10px 14px;font-size:14px;color:var(--fg-2)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
+.kpi{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px;display:grid;gap:2px;align-content:start}
+.kpi.hero{background:var(--brand);border-color:var(--brand);color:#fff}.kpi.hero .lbl,.kpi.hero .s{color:rgb(255 255 255 / .85)}
+.kpi .v{font-family:var(--font-d);font-size:34px;line-height:1.05;font-weight:600;font-variant-numeric:tabular-nums}
+.kpi .s{font-size:13px;color:var(--fg-2)}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,460px),1fr));gap:16px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;min-width:0;display:grid;gap:10px;align-content:start}
+.ch{display:flex;justify-content:space-between;gap:8px;align-items:baseline;flex-wrap:wrap}
+.chartbox{position:relative;height:280px}
+.tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r);background:var(--panel)}
+table.t{border-collapse:collapse;width:100%;font-size:14px}
+table.t th{font-family:var(--font-d);font-weight:600;font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:var(--fg-2);text-align:left;padding:9px 10px;border-bottom:1px solid var(--line-strong);background:var(--panel-2);white-space:nowrap}
+table.t td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+.num{text-align:right;font-family:var(--font-m);font-variant-numeric:tabular-nums;white-space:nowrap}
+.prio{display:inline-block;border-radius:999px;padding:1px 9px;font-size:12px;font-weight:600;white-space:nowrap}
+.prio.alta{background:var(--bad-soft);color:#9b1c15}.prio.media{background:var(--warn-soft);color:#8a5200}.prio.baja{background:var(--panel-2);color:var(--fg-2)}
+.tipo{display:inline-flex;align-items:center;gap:6px;font-size:13px;white-space:nowrap}.tipo i{width:9px;height:9px;border-radius:2px;display:inline-block}
+.pill{display:inline-block;border-radius:5px;padding:1px 7px;font-size:12px;background:var(--panel-2);color:var(--fg-2);white-space:nowrap}
+.eqcard{border:1px solid var(--line);border-radius:12px;background:var(--panel);display:grid}
+.eqcard>.h{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:baseline;padding:12px 16px;border-bottom:1px solid var(--line)}
+.eqcard>.h b{font-family:var(--font-d);font-size:19px}
+.find{display:grid;grid-template-columns:170px minmax(0,1fr) auto;gap:4px 12px;padding:10px 16px;border-top:1px solid var(--panel-2);align-items:start}
+.find:first-of-type{border-top:0}
+.find .q{font-size:13px;color:var(--fg-3)}
+.alist{display:grid}
+.aitem{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;padding:9px 4px;border:0;border-top:1px solid var(--line);border-radius:0;text-align:left;background:none;width:100%}
+.aitem:first-child{border-top:0}.aitem:hover{background:var(--brand-soft)}
+.bar{height:8px;border-radius:4px;background:var(--panel-2);overflow:hidden;min-width:80px}.bar i{display:block;height:100%;background:var(--bad)}
+.empty{padding:22px;text-align:center;color:var(--fg-3);font-size:14px}
+.overlay{position:fixed;inset:0;z-index:40;background:rgb(10 16 22 / .45)}
+.dlg{display:grid;place-items:center;padding:16px}
+.mp{width:min(720px,100%);max-height:90vh;overflow:auto;background:var(--panel);border-radius:12px;border:1px solid var(--line);padding:22px;display:grid;gap:14px}
+.drop{border:2px dashed var(--line-strong);border-radius:12px;padding:26px 16px;text-align:center;display:grid;gap:6px;justify-items:center;color:var(--fg-2);cursor:pointer}
+.drop.over{border-color:var(--brand);background:var(--brand-soft)}
+.steps{display:grid;gap:10px;counter-reset:s;margin:0;padding:0}
+.step{display:grid;grid-template-columns:30px minmax(0,1fr);gap:10px;align-items:start}
+.step::before{counter-increment:s;content:counter(s);width:26px;height:26px;border-radius:50%;background:var(--brand);color:#fff;display:grid;place-items:center;font-family:var(--font-d);font-weight:600}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--fg);color:#fff;padding:10px 16px;border-radius:var(--r);z-index:60;font-size:14px;max-width:calc(100% - 32px)}
+.err{color:var(--bad);font-size:13px;min-height:18px}
+@media (max-width:640px){.kpi .v{font-size:28px}.brand h1{font-size:22px}.hide-sm{display:none}.hstat{justify-content:flex-start}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<header class="top">
+  <div class="wrap">
+    <div class="hrow">
+      <div class="brand"><div class="eb">CEMEX <b>GDL</b></div><h1>Reportes Dynamix</h1></div>
+      <div class="hstat" id="hstat"><span class="sub">Cargando…</span></div>
+      <div style="display:flex;gap:8px"><button id="btnExport" type="button" hidden>Exportar a Excel</button><button class="primary" id="btnUpload" type="button">Cargar reporte del bot</button></div>
+    </div>
+    <nav class="tabs" role="tablist" id="tabs">
+      <button role="tab" data-t="resumen" aria-selected="true">Resumen</button>
+      <button role="tab" data-t="hallazgos" aria-selected="false">Hallazgos para el programa <span class="cnt" id="hCnt"></span></button>
+      <button role="tab" data-t="historico" aria-selected="false">Histórico</button>
+      <button role="tab" data-t="cargas" aria-selected="false">Actualizaciones</button>
+    </nav>
+  </div>
+</header>
+
+<div class="stick" id="bar">
+  <div class="wrap prow">
+    <label class="sub" style="display:flex;gap:8px;align-items:center">Semana <select id="fSem"></select></label>
+    <label class="sub" style="display:flex;gap:8px;align-items:center">Categoría <select id="fCat"></select></label>
+    <label class="sub" style="display:flex;gap:8px;align-items:center">Tipo de trabajo <select id="fTipo"></select></label>
+    <input type="search" id="fQ" placeholder="Buscar equipo o hallazgo…" style="flex:1 1 200px">
+  </div>
+</div>
+
+<main class="wrap">
+  <section id="v-resumen" data-view>
+    <div style="display:grid;gap:20px">
+      <div class="kpis" id="kpis"></div>
+      <div class="grid2">
+        <div class="card"><div class="ch"><h2>Hallazgos por categoría</h2><span class="hint">Respuestas en "No" de las rutinas</span></div><div class="chartbox"><canvas id="cCat"></canvas></div></div>
+        <div class="card"><div class="ch"><h2>Tipo de trabajo</h2><span class="hint">Clasificado según el comentario del técnico</span></div><div class="chartbox"><canvas id="cTipo"></canvas></div></div>
+      </div>
+      <div class="grid2">
+        <div class="card"><div class="ch"><h2>Equipos con más hallazgos</h2><span class="hint">Clic para verlos en la lista</span></div><div class="alist" id="topEq"></div></div>
+        <div class="card"><div class="ch"><h2>Rutinas por categoría</h2><span class="hint">Cuántas se hicieron y cuántas encontraron algo</span></div><div class="tbl-wrap"><table class="t"><thead><tr><th>Categoría</th><th class="num">Rutinas</th><th class="num">Con hallazgos</th><th class="num">Hallazgos</th></tr></thead><tbody id="catTbl"></tbody></table></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="v-hallazgos" data-view hidden>
+    <div style="display:grid;gap:14px">
+      <div class="ch"><h2 id="hTitle">Hallazgos para el programa del lunes</h2><span class="hint">Prioridad sugerida según el hallazgo · se ajusta al armar el programa</span></div>
+      <div id="hList" style="display:grid;gap:12px"></div>
+    </div>
+  </section>
+
+  <section id="v-historico" data-view hidden>
+    <div style="display:grid;gap:16px">
+      <div class="tbl-wrap"><table class="t"><thead><tr><th>Semana</th><th class="num">Rutinas</th><th class="num">Equipos revisados</th><th class="num">Hallazgos</th><th class="num">Equipos con hallazgos</th></tr></thead><tbody id="semTbl"></tbody></table></div>
+      <div class="card"><div class="ch"><h2>Equipos que repiten hallazgos</h2><span class="hint">Aparecen con algo en "No" en 2 o más semanas</span></div><div id="rep"></div></div>
+    </div>
+  </section>
+
+  <section id="v-cargas" data-view hidden>
+    <div style="display:grid;gap:12px">
+      <div class="ch"><h2>Actualizaciones</h2><button class="primary" type="button" id="btnUpload2">Cargar reporte del bot</button></div>
+      <div class="card"><h3>Cada lunes</h3>
+        <ol class="steps"><li class="step"><div>Abre Dynamix › Mantenimiento autónomo › Histórico y toca el favorito <b>Bot Dynamix</b>.</div></li>
+        <li class="step"><div>Toca <b>Sacar reporte de la semana</b> y espera a que descargue el archivo <b>.json</b>.</div></li>
+        <li class="step"><div>Suéltalo aquí con <b>Cargar reporte del bot</b>. Si cargas la misma semana otra vez, se actualiza sin duplicar.</div></li></ol></div>
+      <div class="tbl-wrap"><table class="t"><thead><tr><th>Semana</th><th>Planta</th><th class="num">Rutinas</th><th>Generado</th></tr></thead><tbody id="cgBody"></tbody></table></div>
+    </div>
+  </section>
+
+  <section id="v-empty" data-view hidden><div class="card" id="emptyBox" style="max-width:70ch"></div></section>
+</main>
+
+<div id="modal" class="overlay dlg" hidden><div class="mp" role="dialog" aria-modal="true" aria-labelledby="mTitle">
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><h2 id="mTitle">Cargar reporte del bot</h2><button type="button" id="mClose">Cerrar</button></div>
+  <label class="drop" id="drop" tabindex="0"><b>Suelta aquí el archivo .json del Bot Dynamix</b><span class="hint">o haz clic para elegirlo</span><input type="file" id="fileIn" accept=".json,application/json" multiple hidden></label>
+  <div class="err" id="upErr"></div><div id="upRes"></div>
+</div></div>
+<div id="toast" class="toast" hidden></div>
+
+<script type="application/json" id="dx-data">/*@DATA@*/</script>
+<script>
+"use strict";
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const norm=s=>String(s||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase().trim();
+const nf=n=>Number(n).toLocaleString("es-MX");
+const MES=["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
+const fDs=iso=>+iso.slice(8,10)+" "+MES[+iso.slice(5,7)-1];
+const semLbl=w=>`${fDs(w.desde)} – ${fDs(w.hasta)} ${w.hasta.slice(0,4)}`;
+function toast(t){const el=$("#toast");el.textContent=t;el.hidden=false;clearTimeout(toast._t);toast._t=setTimeout(()=>el.hidden=true,4500)}
+
+/* ---- normalizar el archivo del bot (v1.0 y v1.1) ---- */
+const LBL=[["planta","PLANTA"],["equipo","EQUIPO"],["tipo rutina","TIPO RUTINA"],["categoria","CATEGORÍA"],["area de proceso","ÁREA DE PROCESO"],["estatus","ESTATUS"],["alerta","ALERTA"],["fecha (utc-6)","FECHA (UTC-6)"],["responsable","RESPONSABLE"],["registro","REGISTRÓ"],["codigo","CÓDIGO"]];
+function fixMeta(m){
+  if(m.equipo||!m.planta||!/ EQUIPO /.test(m.planta))return m;
+  let s="PLANTA "+m.planta,out={},pos=0;
+  const idx=LBL.map(([k,u])=>{const i=s.indexOf(u+" ",pos);if(i>=0)pos=i+u.length;return i});
+  LBL.forEach(([k,u],i)=>{if(idx[i]<0)return;let end=s.length;for(let j=i+1;j<LBL.length;j++)if(idx[j]>=0){end=idx[j];break}out[k]=s.slice(idx[i]+u.length,end).trim()});
+  return out;
+}
+const clean=s=>String(s||"").replace(/ulld/g,"and").replace(/\*+$/,"").replace(/\s+/g," ").trim();
+function normFile(d){
+  if(!d||!Array.isArray(d.registros))throw new Error("no es un archivo del Bot Dynamix");
+  const regs=d.registros.map(r=>{const m=fixMeta(r.meta||{});const T=(r.tarjeta||"").split("\n");
+    const catT=(T.find(l=>/^Cat:/i.test(l))||"").replace(/^Cat:\s*/i,"");
+    return {c:m.codigo||(m.equipo+"|"+(m["fecha (utc-6)"]||T[1]||"")),f:m["fecha (utc-6)"]||T[1]||"",cat:m.categoria||catT||"Sin categoría",eq:m.equipo||T[0]||"",reg:m.registro||"",est:m.estatus||"",al:m.alerta||"",resp:m.responsable||"",
+      ans:(r.respuestas||[]).map(a=>[clean(a.pregunta),a.respuesta,clean(a.comentario)])}});
+  return {desde:d.desde,hasta:d.hasta,planta:d.planta||"",generado:d.generado||"",regs};
+}
+
+/* ---- clasificación de hallazgos ---- */
+const TIPOS=[["Lubricación",/lubric|grasa|vasillo|vaso lubric|nivel.*aceite|aceite.*nivel/,"--t1"],["Fuga",/fuga|goteo|tira aceite|escurr/,"--t2"],["Alineación o tensión",/aline|tens|caid|chueco|desajust/,"--t3"],["Limpieza",/limpi|sucio|acumula|material en|algo de material/,"--t4"],["Desgaste o daño",/desgast|roto|rota|da[ñn]|fisura|mal estado|cambio|golpe en/,"--t5"],["Ruido o vibración",/ruido|golpete|vibra/,"--t6"],["Falta o no funciona",/falta|faltan|no cuenta|sin bater|deshabilit|no funciona|no opera/,"--t7"]];
+function tipoDe(com,preg){const t=norm(com+" ");for(const [n,re] of TIPOS)if(re.test(t))return n;const q=norm(preg);for(const [n,re] of TIPOS)if(re.test(q))return n;return "Otro"}
+const tcol=n=>css((TIPOS.find(t=>t[0]===n)||[0,0,"--t8"])[2]);
+function prioDe(com){const t=norm(com);if(/no funciona|deshabilit|roto|rota|fuga de material|sin bater|no opera/.test(t))return "alta";if(/fuga|ruido|golpete|vibra|desgast|aline|tens|da[ñn]|fisura|mal estado|cambio|caid/.test(t))return "media";return "baja"}
+const PR={alta:3,media:2,baja:1};
+
+/* ---- estado ---- */
+const S={db:null,dl:null,sem:new Map(),cur:"",tab:"resumen",f:{cat:"",tipo:"",q:""},mode:"loading"};
+function weeks(){return [...S.sem.values()].sort((a,b)=>a.desde<b.desde?1:-1)}
+function curW(){return S.sem.get(S.cur)}
+function hallazgos(w){const out=[];(w?w.regs:[]).forEach(r=>r.ans.forEach(a=>{if(a[1]==="No")out.push({r,preg:a[0],com:a[2],tipo:tipoDe(a[2],a[0]),prio:prioDe(a[2]||a[0])})}));return out}
+function filtH(H){const f=S.f,q=norm(f.q);return H.filter(h=>(!f.cat||h.r.cat===f.cat)&&(!f.tipo||h.tipo===f.tipo)&&(!q||norm(h.r.eq+" "+h.com+" "+h.preg).includes(q)))}
+function filtR(w){const f=S.f,q=norm(f.q);return (w?w.regs:[]).filter(r=>(!f.cat||r.cat===f.cat)&&(!q||norm(r.eq+" "+r.ans.map(a=>a[2]).join(" ")).includes(q)))}
+const count=(a,k)=>{const m=new Map();a.forEach(x=>{const v=typeof k==="function"?k(x):x[k];m.set(v,(m.get(v)||0)+1)});return m};
+
+/* ---- render ---- */
+let rT=0;function renderAll(){cancelAnimationFrame(rT);rT=requestAnimationFrame(_render)}
+function _render(){
+  const ok=S.mode==="ok";$("#bar").hidden=!ok||S.tab==="cargas"||S.tab==="historico";$("#tabs").hidden=!ok;$("#btnExport").hidden=!ok||typeof XLSX==="undefined";
+  $$("[data-view]").forEach(v=>v.hidden=ok?v.id!=="v-"+S.tab:v.id!=="v-empty");
+  $$("#tabs [role=tab]").forEach(b=>b.setAttribute("aria-selected",b.dataset.t===S.tab));
+  if(!ok){$("#hstat").innerHTML=`<span class="sub">${S.mode==="loading"?"Cargando…":"Sin reportes todavía"}</span>`;
+    $("#emptyBox").innerHTML=S.mode==="loading"?"<h2>Cargando reportes…</h2>":`<h2>Aún no hay reportes de Dynamix</h2>${S.noDb?'<div class="banner">El historial compartido no está disponible en esta vista. Lo que cargues solo se verá en esta pestaña.</div>':""}<button class="primary" type="button" id="emptyUp">Cargar reporte del bot</button>`;
+    if($("#emptyUp"))$("#emptyUp").onclick=openModal;return}
+  const W=weeks(),w=curW();
+  $("#hstat").innerHTML=`<div class="it"><span class="lbl">Planta</span><b>${esc(w.planta||"Guadalajara")}</b></div><div class="it"><span class="lbl">Semana</span><b>${esc(semLbl(w))}</b></div>`;
+  const os=W.map(x=>`<option value="${x.desde}"${x.desde===S.cur?" selected":""}>${esc(semLbl(x))}</option>`).join("");if($("#fSem").innerHTML!==os)$("#fSem").innerHTML=os;$("#fSem").value=S.cur;
+  const cats=[...new Set(w.regs.map(r=>r.cat))].sort();const oc=`<option value="">Todas</option>`+cats.map(c=>`<option>${esc(c)}</option>`).join("");if($("#fCat").innerHTML!==oc)$("#fCat").innerHTML=oc;$("#fCat").value=S.f.cat;
+  const ot=`<option value="">Todos</option>`+[...TIPOS.map(t=>t[0]),"Otro"].map(t=>`<option>${esc(t)}</option>`).join("");if($("#fTipo").innerHTML!==ot)$("#fTipo").innerHTML=ot;$("#fTipo").value=S.f.tipo;
+  $("#hCnt").textContent=filtH(hallazgos(w)).length;
+  ({resumen:rResumen,hallazgos:rHallazgos,historico:rHist,cargas:rCargas})[S.tab]();
+}
+const CH={};
+function mk(id,cfg){if(CH[id]){CH[id].destroy();delete CH[id]}if(typeof Chart==="undefined")return;CH[id]=new Chart(document.getElementById(id),cfg)}
+const opts=o=>Object.assign({responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{display:false}}},o);
+const axH=()=>({x:{beginAtZero:true,ticks:{color:css("--fg-2"),precision:0},grid:{color:css("--line")}},y:{ticks:{color:css("--fg-2")},grid:{display:false}}});
+function rResumen(){
+  const w=curW(),R=filtR(w),H=filtH(hallazgos(w));
+  const eqs=new Set(R.map(r=>r.eq)),eqH=new Set(H.map(h=>h.r.eq));
+  const at=R.filter(r=>/atend|cerrad|finaliz/i.test(r.est)).length,conAl=R.filter(r=>r.al&&!/no asignada/i.test(r.al)).length;
+  const altas=H.filter(h=>h.prio==="alta").length;
+  $("#kpis").innerHTML=`<div class="kpi hero"><span class="lbl">Hallazgos de la semana</span><span class="v">${nf(H.length)}</span><span class="s">en ${eqH.size} equipos</span></div>
+    <div class="kpi"><span class="lbl">Rutinas registradas</span><span class="v">${nf(R.length)}</span><span class="s">${eqs.size} equipos revisados</span></div>
+    <div class="kpi"><span class="lbl">Rutinas con hallazgos</span><span class="v">${nf(R.filter(r=>r.ans.some(a=>a[1]==="No")).length)}</span><span class="s">${R.length?Math.round(R.filter(r=>r.ans.some(a=>a[1]==="No")).length/R.length*100):0}% de las rutinas</span></div>
+    <div class="kpi"><span class="lbl">Prioridad alta sugerida</span><span class="v" style="color:var(--bad)">${nf(altas)}</span><span class="s">No funciona, roto o fuga de material</span></div>
+    <div class="kpi"><span class="lbl">Alertas en Dynamix</span><span class="v">${nf(conAl)}</span><span class="s">${at} atendidas · ${R.length-conAl} sin alerta asignada</span></div>`;
+  const cc=[...count(H,h=>h.r.cat)].sort((a,b)=>b[1]-a[1]);
+  mk("cCat",{type:"bar",data:{labels:cc.map(x=>x[0]),datasets:[{data:cc.map(x=>x[1]),backgroundColor:css("--brand"),borderRadius:3}]},options:opts({indexAxis:"y",scales:axH(),onClick:(e,el)=>{if(el.length){S.f.cat=cc[el[0].index][0];S.tab="hallazgos";renderAll()}}})});
+  const tc=[...count(H,"tipo")].sort((a,b)=>b[1]-a[1]);
+  mk("cTipo",{type:"bar",data:{labels:tc.map(x=>x[0]),datasets:[{data:tc.map(x=>x[1]),backgroundColor:tc.map(x=>tcol(x[0])),borderRadius:3}]},options:opts({indexAxis:"y",scales:axH(),onClick:(e,el)=>{if(el.length){S.f.tipo=tc[el[0].index][0];S.tab="hallazgos";renderAll()}}})});
+  const te=[...count(H,h=>h.r.eq)].sort((a,b)=>b[1]-a[1]).slice(0,8);const mx=Math.max(1,...te.map(x=>x[1]));
+  $("#topEq").innerHTML=te.length?te.map(([e,n])=>{const cat=(H.find(h=>h.r.eq===e)||{r:{}}).r.cat;return `<button class="aitem" type="button" data-q="${esc(e)}"><span style="min-width:0"><b>${esc(e)}</b><br><span class="sub">${esc(cat)}</span><div class="bar" style="margin-top:4px"><i style="width:${n/mx*100}%"></i></div></span><span class="mono" style="font-size:18px;font-weight:500">${n}</span></button>`}).join(""):`<div class="empty">Sin hallazgos con estos filtros.</div>`;
+  $$("#topEq [data-q]").forEach(b=>b.onclick=()=>{S.f.q=b.dataset.q;$("#fQ").value=S.f.q;S.tab="hallazgos";renderAll()});
+  const cats=[...count(R,"cat")].sort((a,b)=>b[1]-a[1]);
+  $("#catTbl").innerHTML=cats.map(([c,n])=>{const rr=R.filter(r=>r.cat===c);return `<tr><td>${esc(c)}</td><td class="num">${n}</td><td class="num">${rr.filter(r=>r.ans.some(a=>a[1]==="No")).length}</td><td class="num"><b>${H.filter(h=>h.r.cat===c).length}</b></td></tr>`}).join("");
+}
+function rHallazgos(){
+  const w=curW(),H=filtH(hallazgos(w));
+  const by=new Map();H.forEach(h=>{const k=h.r.cat+"|"+h.r.eq;(by.get(k)||by.set(k,[]).get(k)).push(h)});
+  const grp=[...by.values()].sort((a,b)=>Math.max(...b.map(h=>PR[h.prio]))-Math.max(...a.map(h=>PR[h.prio]))||b.length-a.length);
+  $("#hTitle").textContent=`Hallazgos para el programa del lunes · ${H.length} en ${grp.length} equipos`;
+  $("#hList").innerHTML=grp.length?grp.map(g=>{const r=g[0].r;const top=g.reduce((m,h)=>PR[h.prio]>PR[m]?h.prio:m,"baja");
+    return `<article class="eqcard"><div class="h"><span><span class="prio ${top}">${top[0].toUpperCase()+top.slice(1)}</span> <b>${esc(r.eq)}</b> <span class="pill">${esc(r.cat)}</span></span><span class="sub">${esc(r.f)} · ${esc(r.reg||"")}</span></div>
+      ${g.sort((a,b)=>PR[b.prio]-PR[a.prio]).map(h=>`<div class="find"><span class="tipo"><i style="background:${tcol(h.tipo)}"></i>${esc(h.tipo)}</span><div><div>${esc(h.com||"(sin comentario)")}</div><div class="q">${esc(h.preg)}</div></div><span class="prio ${h.prio}">${h.prio}</span></div>`).join("")}</article>`}).join(""):`<div class="empty">Sin hallazgos con estos filtros.</div>`;
+}
+function rHist(){
+  const W=weeks();
+  $("#semTbl").innerHTML=W.map(w=>{const H=hallazgos(w);return `<tr><td><button class="link" type="button" data-w="${w.desde}">${esc(semLbl(w))}</button></td><td class="num">${w.regs.length}</td><td class="num">${new Set(w.regs.map(r=>r.eq)).size}</td><td class="num"><b>${H.length}</b></td><td class="num">${new Set(H.map(h=>h.r.eq)).size}</td></tr>`}).join("");
+  $$("#semTbl [data-w]").forEach(b=>b.onclick=()=>{S.cur=b.dataset.w;S.tab="resumen";renderAll()});
+  const m=new Map();W.forEach(w=>new Set(hallazgos(w).map(h=>h.r.cat+"|"+h.r.eq)).forEach(k=>{(m.get(k)||m.set(k,[]).get(k)).push(w)}));
+  const rep=[...m].filter(([,v])=>v.length>=2).sort((a,b)=>b[1].length-a[1].length);
+  $("#rep").innerHTML=W.length<2?`<div class="empty">Se llena cuando cargues la segunda semana. Llevas ${W.length}.</div>`:rep.length?`<div class="tbl-wrap"><table class="t"><thead><tr><th>Equipo</th><th>Categoría</th><th class="num">Semanas con hallazgos</th><th>Último hallazgo</th></tr></thead><tbody>${rep.map(([k,v])=>{const [c,e]=k.split("|");const last=hallazgos(v[0]).filter(h=>h.r.eq===e);return `<tr><td><b>${esc(e)}</b></td><td>${esc(c)}</td><td class="num">${v.length} de ${W.length}</td><td>${esc((last[0]||{}).com||"")}</td></tr>`}).join("")}</tbody></table></div>`:`<div class="empty">Ningún equipo repite hallazgos entre semanas.</div>`;
+}
+function rCargas(){$("#cgBody").innerHTML=weeks().map(w=>`<tr><td>${esc(semLbl(w))}</td><td>${esc(w.planta)}</td><td class="num">${w.regs.length}</td><td>${w.generado?new Date(w.generado).toLocaleString("es-MX",{day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"}):""}</td></tr>`).join("")}
+
+/* ---- eventos ---- */
+$$("#tabs [role=tab]").forEach(b=>b.onclick=()=>{S.tab=b.dataset.t;renderAll();window.scrollTo({top:0})});
+$("#fSem").onchange=e=>{S.cur=e.target.value;renderAll()};
+$("#fCat").onchange=e=>{S.f.cat=e.target.value;renderAll()};
+$("#fTipo").onchange=e=>{S.f.tipo=e.target.value;renderAll()};
+let qT=0;$("#fQ").oninput=e=>{clearTimeout(qT);qT=setTimeout(()=>{S.f.q=e.target.value.trim();renderAll()},200)};
+function openModal(){$("#modal").hidden=false;$("#upErr").textContent="";$("#upRes").innerHTML=""}
+$("#btnUpload").onclick=openModal;$("#btnUpload2").onclick=openModal;$("#mClose").onclick=()=>$("#modal").hidden=true;
+$("#modal").onclick=e=>{if(e.target.id==="modal")$("#modal").hidden=true};
+const drop=$("#drop");$("#fileIn").onchange=e=>handle([...e.target.files]);
+drop.ondragover=e=>{e.preventDefault();drop.classList.add("over")};drop.ondragleave=()=>drop.classList.remove("over");
+drop.ondrop=e=>{e.preventDefault();drop.classList.remove("over");handle([...e.dataTransfer.files])};
+async function handle(files){
+  const err=$("#upErr");err.textContent="";let n=0,last="";
+  for(const f of files){try{const w=normFile(JSON.parse(await f.text()));const old=S.sem.get(w.desde);
+      if(old&&old.hasta===w.hasta){const m=new Map(old.regs.map(r=>[r.c,r]));w.regs.forEach(r=>m.set(r.c,r));w.regs=[...m.values()]}
+      if(S.db)await S.db.collection("semanas").doc(w.desde).set(w);S.sem.set(w.desde,w);n+=w.regs.length;last=w.desde}
+    catch(e){err.textContent+=`${f.name}: ${e.message||"no se pudo leer"}. `}}
+  if(last&&S.nube){try{await S.nube.guardar("dynamix",{semanas:[...S.sem.values()]})}catch(e){err.textContent="No se pudo guardar. Inicia sesión e intenta de nuevo.";return}}
+  if(last){S.cur=last;S.mode="ok";$("#upRes").innerHTML=`<div class="banner">${n} rutinas cargadas.</div>`;toast("Reporte cargado.");renderAll()}
+}
+$("#btnExport").onclick=async()=>{
+  const w=curW(),H=filtH(hallazgos(w));const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(H.map(h=>({"Prioridad sugerida":h.prio,"Categoría":h.r.cat,"Equipo":h.r.eq,"Hallazgo":h.com,"Revisión":h.preg,"Tipo de trabajo":h.tipo,"Fecha":h.r.f,"Registró":h.r.reg,"Código Dynamix":h.r.c}))),"Hallazgos");
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(filtR(w).map(r=>({"Fecha":r.f,"Categoría":r.cat,"Equipo":r.eq,"Preguntas":r.ans.length,"Respuestas No":r.ans.filter(a=>a[1]==="No").length,"Registró":r.reg,"Estatus":r.est,"Alerta":r.al,"Código":r.c}))),"Rutinas");
+  const buf=XLSX.write(wb,{bookType:"xlsx",type:"array"}),name=`Dynamix_hallazgos_${w.desde}_a_${w.hasta}.xlsx`;
+  if(S.dl){try{const r=await S.dl.save({filename:name,data:buf});if(r.status==="saved")toast("Archivo descargado.");return}catch(e){if(e&&e.code!=="unavailable"){toast("No se descargó el archivo.");return}}}
+  try{const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([buf]));a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>a.remove(),2000)}catch(e){toast("La descarga no está disponible en esta vista.")}
+};
+
+/* ---- arranque ---- */
+renderAll();
+(async function boot(){
+  let seed=window.DYNAMIX_SEED;
+  const nube=window.ECO&&window.ECO.nube,ro=v=>{["#btnUpload","#btnUpload2"].forEach(x=>{const b=$(x);if(b)b.hidden=v})};
+  if(!seed){try{seed=JSON.parse($("#dx-data").textContent)}catch(e){}}
+  if(nube){ro(true);const d=await nube.leer("dynamix");if(d!==undefined){S.nube=nube;if(d)seed=d;ro(!nube.clave())}}
+  else if(!(window.claude&&window.claude.use)&&location.protocol!=="file:")ro(true);
+  if(seed&&(!(window.claude&&window.claude.use)||S.nube)){(seed.semanas||[]).forEach(w=>S.sem.set(w.desde,w));S.cur=weeks()[0]?.desde||"";S.mode=S.sem.size?"ok":"empty";renderAll();return}
+  const use=n=>window.claude&&window.claude.use?window.claude.use(n).catch(()=>null):Promise.resolve(null);
+  const [db,dl]=await Promise.all([use("db"),use("downloads")]);S.dl=dl;
+  if(!db){S.noDb=true;S.mode="empty";renderAll();return}
+  S.db=db;
+  db.collection("semanas").onSnapshot(s=>{S.sem=new Map(s.docs.map(d=>[d.id,d.data()]));if(!S.sem.has(S.cur))S.cur=weeks()[0]?.desde||"";S.mode=S.sem.size?"ok":"empty";renderAll()},e=>{S.mode="empty";renderAll()});
+})();
+</script>
+

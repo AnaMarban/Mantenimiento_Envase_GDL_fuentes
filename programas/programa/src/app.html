@@ -1,0 +1,362 @@
+<title>CEMEX GDL Programa de Mantenimiento</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=Source+Sans+3:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style id="pg-css">
+/* Layout: programa semanal — encabezado de marca con estado, lista ordenable (arrastrar) con línea de corte de 10, pestañas de tickets SAP y fuentes. Tema claro único, como Fallas Envase. */
+:root{
+  --bg:#ffffff;--panel:#ffffff;--panel-2:#eef2f6;--line:#d8dfe7;--line-strong:#b6c2cf;
+  --fg:#121c2b;--fg-2:#475769;--fg-3:#6b7a8b;
+  --brand:#0a3a8c;--brand-soft:#e5ecf8;--brand-red:#d81e27;
+  --bad:#c62f2f;--bad-soft:#fbe4e2;--warn:#b86e00;--warn-soft:#fcefd6;--ok:#2f7d4f;--ok-soft:#e1f1e6;
+  --font-d:"Barlow Semi Condensed","Arial Narrow",Arial,sans-serif;
+  --font-b:"Source Sans 3","Segoe UI",system-ui,sans-serif;
+  --font-m:"JetBrains Mono",ui-monospace,Consolas,monospace;
+  --r:8px;color-scheme:light;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--font-b);font-size:15px;line-height:1.45}
+h1,h2,h3{font-family:var(--font-d);font-weight:600;margin:0;letter-spacing:.01em;text-wrap:balance}
+h2{font-size:20px}
+button,select,input{font:inherit;color:inherit}
+button{cursor:pointer;border:1px solid var(--line-strong);background:var(--panel);border-radius:var(--r);padding:7px 12px;display:inline-flex;align-items:center;gap:6px}
+button:hover{border-color:var(--brand)}
+button.primary{background:var(--brand);border-color:var(--brand);color:#fff}
+button.go{background:var(--ok);border-color:var(--ok);color:#fff}
+button.link{border:0;background:none;padding:0;color:var(--brand);font-weight:600;text-decoration:underline;text-underline-offset:2px}
+button:disabled{opacity:.5;cursor:default}
+button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+select,input[type=search]{border:1px solid var(--line-strong);background:var(--panel);border-radius:var(--r);padding:5px 8px;font-size:14px;min-width:0}
+.mono{font-family:var(--font-m);font-variant-numeric:tabular-nums}
+.wrap{max-width:1320px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.lbl{font-family:var(--font-d);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--fg-3)}
+.sub{font-size:13px;color:var(--fg-2)}.hint{font-size:13px;color:var(--fg-3)}
+header.top{border-top:4px solid var(--brand);background:var(--panel)}
+header.top::after{content:"";display:block;height:2px;background:linear-gradient(90deg,var(--brand-red) 0 64px,var(--line) 64px)}
+.hrow{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:center;padding-block:14px 12px}
+.brand{display:grid;line-height:1.05;gap:3px}
+.brand .eb{font-family:var(--font-d);font-weight:700;font-size:15px;letter-spacing:.14em;color:var(--brand)}
+.brand .eb b{color:var(--brand-red)}
+.brand h1{font-size:28px;font-weight:700}
+.hstat{flex:1 1 260px;display:flex;gap:6px 22px;flex-wrap:wrap;justify-content:flex-end;align-items:center}
+.hstat .hi{display:grid;line-height:1.2}.hstat .hi b{font-family:var(--font-d);font-size:17px;font-weight:600}
+.state{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:3px 12px;font-weight:600;font-size:13px}
+.state.prop{background:var(--warn-soft);color:var(--warn)}.state.apr{background:var(--ok-soft);color:var(--ok)}
+.hact{display:flex;gap:8px;flex-wrap:wrap}
+nav.tabs{display:flex;gap:2px;overflow-x:auto}
+nav.tabs button{border:0;border-bottom:3px solid transparent;border-radius:0;background:none;padding:8px 14px;font-family:var(--font-d);font-size:16px;color:var(--fg-2);white-space:nowrap}
+nav.tabs button[aria-selected=true]{color:var(--brand);border-bottom-color:var(--brand);font-weight:600}
+main{padding-block:18px 60px;display:grid;gap:16px}
+.banner{border:1px solid var(--line-strong);background:var(--panel-2);border-radius:var(--r);padding:10px 14px;font-size:14px;color:var(--fg-2)}
+.banner.ok{border-color:#a9d3b7;background:var(--ok-soft);color:var(--fg)}
+.banner.warn{border-color:#e6bd6a;background:var(--warn-soft);color:var(--fg)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px}
+.kpi{border:1px solid var(--line);border-radius:10px;padding:10px 14px;display:grid;gap:2px}
+.kpi .v{font-family:var(--font-d);font-size:30px;font-weight:600;line-height:1.05}
+.kpi.hero{background:var(--brand);border-color:var(--brand);color:#fff}.kpi.hero .lbl,.kpi.hero .sub{color:rgb(255 255 255 / .82)}
+
+/* lista ordenable */
+.plist{display:grid;gap:6px;user-select:none}
+.it{display:grid;grid-template-columns:34px 30px minmax(0,1.15fr) minmax(0,1.6fr) 96px 112px 34px;gap:10px;align-items:center;background:var(--panel);border:1px solid var(--line);border-left:5px solid var(--line-strong);border-radius:0 10px 10px 0;padding:8px 10px 8px 6px;position:relative}
+.it.u{border-left-color:var(--bad)}.it.p{border-left-color:var(--brand)}.it.w{background:var(--panel-2);border-left-color:var(--line)}
+.it.drag{box-shadow:0 10px 28px rgb(10 30 60 / .22);z-index:5;border-color:var(--brand);transform:scale(1.01)}
+.it.ghost{opacity:.35}
+.handle{width:34px;height:44px;display:grid;place-items:center;border:0;background:none;padding:0;cursor:grab;touch-action:none;color:var(--fg-3)}
+.handle:active{cursor:grabbing}
+.ro .handle{visibility:hidden}
+.pos{font-family:var(--font-d);font-size:20px;font-weight:700;text-align:center;color:var(--fg-2)}
+.eqc{display:grid;gap:1px;min-width:0}
+.eqc .cc{font-family:var(--font-m);font-size:12px;color:var(--fg-3)}
+.eqc .dn{font-weight:600;line-height:1.2}
+.eqc .ar{font-size:12px;color:var(--fg-3)}
+.pend{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:600;color:var(--warn);background:var(--warn-soft);border:1px dashed #d79a2b;border-radius:999px;padding:1px 9px;justify-self:start}
+button.pend{cursor:pointer}
+.acc{min-width:0;display:grid;gap:2px}
+.acc .a{font-weight:600}
+.acc .src{font-size:12.5px;color:var(--fg-2);display:flex;flex-wrap:wrap;gap:2px 10px}
+.tag{display:inline-block;border-radius:4px;padding:0 6px;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+.tag.dx{background:#e8e2f5;color:#5a3f96}.tag.vl{background:var(--brand-soft);color:var(--brand)}
+.prio{display:inline-block;border-radius:999px;padding:1px 9px;font-size:12px;font-weight:600}
+.prio.alta{background:var(--bad-soft);color:var(--bad)}.prio.media{background:var(--warn-soft);color:var(--warn)}.prio.baja{background:var(--panel-2);color:var(--fg-2)}
+.x{width:34px;height:34px;padding:0;justify-content:center;border-color:transparent;background:none;color:var(--fg-3)}
+.cut{display:flex;align-items:center;gap:12px;padding:6px 2px;color:var(--fg-2);font-family:var(--font-d);font-size:15px;font-weight:600;letter-spacing:.04em}
+.cut::before,.cut::after{content:"";flex:1;border-top:2px dashed var(--line-strong)}
+.cut.over{color:var(--bad)}.cut.over::before,.cut.over::after{border-color:var(--bad)}
+.secl{font-family:var(--font-d);font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--fg-3);padding:6px 2px 0}
+@media (max-width:900px){.it{grid-template-columns:34px 26px minmax(0,1fr) 34px;row-gap:6px}.it .eqc{grid-column:3}.it .acc{grid-column:3}.it .sel1,.it .sel2{grid-column:3}.it .x{grid-row:1;grid-column:4}}
+
+.tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r)}
+table.t{border-collapse:collapse;width:100%;font-size:14px}
+table.t th{font-family:var(--font-d);font-weight:600;font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:var(--fg-2);text-align:left;padding:9px 10px;border-bottom:1px solid var(--line-strong);background:var(--panel-2);white-space:nowrap}
+table.t td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+.num{text-align:right;font-family:var(--font-m);white-space:nowrap}
+.sim{font-family:var(--font-m);font-size:13px;background:var(--panel-2);border-radius:4px;padding:1px 6px;white-space:nowrap}
+.card{border:1px solid var(--line);border-radius:12px;padding:16px;display:grid;gap:10px;align-content:start}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:16px}
+.overlay{position:fixed;inset:0;z-index:40;background:rgb(10 16 22 / .45);display:grid;place-items:center;padding:16px}
+.mp{width:min(760px,100%);max-height:88vh;overflow:auto;background:var(--panel);border-radius:12px;border:1px solid var(--line);padding:20px;display:grid;gap:12px}
+.eqlist{display:grid;max-height:52vh;overflow:auto;border:1px solid var(--line);border-radius:var(--r)}
+.eqlist button{border:0;border-bottom:1px solid var(--line);border-radius:0;text-align:left;display:grid;grid-template-columns:120px 80px minmax(0,1fr);gap:8px;padding:8px 10px;width:100%;background:none}
+.eqlist button:hover{background:var(--brand-soft)}
+.tks{display:grid;gap:12px}
+.tk{border:1px solid var(--line);border-left:5px solid var(--warn);border-radius:0 12px 12px 0;padding:12px 14px;display:grid;gap:10px}
+.tk.done{border-left-color:var(--ok)}
+.tk header{display:grid;grid-template-columns:30px minmax(0,1fr) auto;gap:10px;align-items:center}
+.fl{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px;margin:0}
+.fl div{background:var(--panel-2);border-radius:var(--r);padding:6px 10px;min-width:0}
+.fl .wide{grid-column:1/-1}
+.fl .w2{grid-column:span 2}@media (max-width:640px){.fl .w2{grid-column:auto}}
+.fl dt{font-family:var(--font-d);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--fg-3)}
+.fl dd{margin:0;display:flex;gap:8px;align-items:flex-start;justify-content:space-between}
+.fl dd>span{min-width:0;overflow-wrap:anywhere}
+.cp{padding:2px 8px;font-size:12px;flex:none}
+.tkf{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.avin{display:inline-flex;gap:6px;align-items:center;font-size:14px;color:var(--fg-2)}
+.avin input{border:1px solid var(--line-strong);border-radius:var(--r);padding:6px 9px;width:150px;font:inherit;font-family:var(--font-m)}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--fg);color:#fff;padding:10px 16px;border-radius:var(--r);z-index:60;font-size:14px;max-width:calc(100% - 32px)}
+.steps{margin:0;padding-left:20px;display:grid;gap:6px}
+@media (max-width:640px){.brand h1{font-size:22px}.hstat{justify-content:flex-start}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+<template id="pg-shell">
+<header class="top">
+  <div class="wrap">
+    <div class="hrow">
+      <div class="brand"><span class="eb">CEMEX <b>GDL</b></span><h1>Programa de Mantenimiento</h1></div>
+      <div class="hstat" id="hstat"></div>
+      <div class="hact">
+        <button type="button" id="bXls">Exportar programa</button>
+        <button type="button" id="bSave" hidden>Guardar cambios</button>
+        <button type="button" class="go" id="bApr" hidden>Aprobar programa</button>
+        <button type="button" id="bReopen" hidden>Reabrir para cambios</button>
+      </div>
+    </div>
+    <nav class="tabs" role="tablist" id="tabs">
+      <button role="tab" data-t="prog" aria-selected="true">Programa</button>
+      <button role="tab" data-t="sap" aria-selected="false">Tickets SAP</button>
+    </nav>
+  </div>
+</header>
+<main class="wrap">
+  <section id="v-prog" data-view>
+    <div style="display:grid;gap:14px">
+      <div id="pBanner"></div>
+      <div class="kpis" id="kpis"></div>
+      <div class="plist" id="plist"></div>
+    </div>
+  </section>
+  <section id="v-sap" data-view hidden>
+    <div id="sapBody" style="display:grid;gap:14px"></div>
+  </section>
+</main>
+<div id="modal" class="overlay" hidden><div class="mp" role="dialog" aria-modal="true" aria-labelledby="mT"><div style="display:flex;justify-content:space-between;gap:8px;align-items:center"><h2 id="mT">Elegir equipo SAP</h2><button type="button" id="mX">Cerrar</button></div><div id="mB" style="display:grid;gap:10px"></div></div></div>
+<div id="toast" class="toast" hidden></div>
+</template>
+<div id="pg-root"></div>
+<script id="pg-mount">document.getElementById("pg-root").replaceWith(document.getElementById("pg-shell").content.cloneNode(true));</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script type="application/json" id="pg-cat">/*@CAT@*/</script>
+<script type="application/json" id="pg-data">/*@DATA@*/</script>
+<script id="pg-app">
+"use strict";
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const DIAS=["LUNES","MARTES","MIÉRCOLES","JUEVES","VIERNES","SÁBADO"],ESP=["MEC","ELEC","OP"];
+const PRIOSAP={2:"2 · Hasta 2 días",3:"3 · Hasta 1 semana",4:"4 · Hasta 30 días"};
+let D=null,CAT=new Map();
+try{D=JSON.parse($("#pg-data").textContent)}catch(e){}
+try{JSON.parse($("#pg-cat").textContent).forEach(r=>CAT.set(r[0],{eq:r[0],cc:r[1],den:r[2],ut:r[3],utd:r[4],pt:r[5],sup:r[6]}))}catch(e){}
+const S={canEdit:null,art:null,dl:null,dirty:false,tab:"prog"};
+function toast(t){const el=$("#toast");el.textContent=t;el.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>el.hidden=true,4200)}
+const A=id=>D.acts.find(a=>a.id===id);
+const cutIx=()=>D.order.indexOf("__cut__");
+const inProg=()=>D.order.slice(0,cutIx()).map(A);
+const waiting=()=>D.order.slice(cutIx()+1).map(A);
+const prioSap=i=>i<5?2:3;
+const editable=()=>S.canEdit!==false&&D.estado!=="aprobado";
+function eqInfo(a){const e=a.eq?CAT.get(a.eq):null;if(!e)return null;const p=e.sup?CAT.get(e.sup):null;return Object.assign({},e,{parent:p})}
+function fDate(iso,add){const d=new Date(Date.parse(iso+"T12:00:00Z")+(add||0)*864e5);return d.getUTCDate()+" "+["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"][d.getUTCMonth()]}
+const fTs=ts=>new Date(ts).toLocaleString("es-MX",{day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"});
+
+/* ---------- render ---------- */
+function render(){
+  if(!D){$("#plist").innerHTML=`<div class="banner">No hay una propuesta cargada.</div>`;return}
+  const P=inProg(),W=waiting(),apr=D.estado==="aprobado",ed=editable();
+  $("#hstat").innerHTML=`<div class="hi"><span class="lbl">Semana</span><b>${D.semana} · ${fDate(D.lunes)} – ${fDate(D.lunes,5)}</b></div><div class="hi"><span class="lbl">Datos de</span><b>${esc(D.datos)}</b></div>
+    <span class="state ${apr?"apr":"prop"}">${apr?"✓ Aprobado "+fTs(D.aprob.ts):"Propuesta · falta aprobar"}</span>`;
+  $("#bSave").hidden=S.canEdit===false||!S.dirty;$("#bApr").hidden=!ed;$("#bReopen").hidden=!(apr&&S.canEdit!==false);
+  const sinEq=P.filter(a=>!a.eq||!a.ok).length;
+  $("#pBanner").innerHTML=sinEq&&!apr&&S.canEdit!==false?`<div class="banner warn">${sinEq} ${sinEq===1?"actividad sin equipo SAP":"actividades sin equipo SAP"}</div>`:"";
+  const al=P.filter(a=>a.prio==="alta").length;
+  $("#kpis").innerHTML=`<div class="kpi hero"><span class="lbl">En el programa</span><span class="v">${P.length}<small style="font-size:16px;opacity:.8"> / 10</small></span><span class="sub">${Math.min(5,P.length)} urgentes</span></div>
+    <div class="kpi"><span class="lbl">En espera</span><span class="v">${W.length}</span><span class="sub">Quedan para otra semana</span></div>
+    <div class="kpi"><span class="lbl">Prioridad alta</span><span class="v" style="color:var(--bad)">${al}</span><span class="sub">De ${D.acts.filter(a=>a.prio==="alta").length} detectadas</span></div>
+    <div class="kpi"><span class="lbl">Por especialidad</span><span class="v" style="font-size:22px">${ESP.map(e=>e+" "+P.filter(a=>a.esp===e).length).join(" · ")}</span><span class="sub">Actividades del programa</span></div>`;
+  const L=$("#plist");L.classList.toggle("ro",!ed);
+  let h=`<div class="secl">Urgentes</div>`;
+  D.order.forEach((id,i)=>{
+    if(id==="__cut__"){const over=P.length>10;h+=`<div class="cut${over?" over":""}" data-cut>${over?`Hay ${P.length} en el programa · el máximo es 10`:"Hasta aquí entra al programa"}</div><div class="secl">En espera</div>`;return}
+    if(i===5&&cutIx()>5)h+=`<div class="secl">Correctivo / preventivo</div>`;
+    h+=row(A(id),i,i<cutIx());
+  });
+  L.innerHTML=h;
+  if(!P.length)L.querySelector(".secl").insertAdjacentHTML("afterend",`<div class="banner">Arrastra actividades arriba de la línea.</div>`);
+  L.querySelectorAll("[data-x]").forEach(b=>b.onclick=()=>toggleOut(b.dataset.x));
+  L.querySelectorAll("select[data-f]").forEach(s=>s.onchange=()=>{const a=A(s.dataset.id);a[s.dataset.f]=s.value;mark()});
+  L.querySelectorAll("[data-eq]").forEach(b=>b.onclick=()=>pickEq(b.dataset.eq));
+  L.querySelectorAll(".handle").forEach(hd=>hd.addEventListener("pointerdown",startDrag));
+  L.querySelectorAll(".handle").forEach(hd=>hd.addEventListener("keydown",keyMove));
+  renderSap();
+}
+function row(a,i,inP){
+  const e=eqInfo(a),ed=editable();
+  const cls=inP?(i<5?"u":"p"):"w";
+  const eqHtml=e?`<span class="cc">${esc(e.cc)} · ${esc(e.eq)}</span><span class="dn">${esc(e.den)}</span><span class="ar">${esc(e.utd)}${e.parent?" · de "+esc(e.parent.den):""}</span>${a.ok?"":`<button type="button" class="pend" data-eq="${a.id}"${S.canEdit!==false?"":" disabled"}>Confirmar equipo SAP</button>`}`
+    :`<span class="dn">${esc(a.dyn||"Equipo")}</span><span class="ar">Nombre en Dynamix</span><button type="button" class="pend" data-eq="${a.id}"${S.canEdit!==false?"":" disabled"}>Elegir equipo SAP</button>`;
+  const src=a.src.map(s=>`<span><span class="tag ${s[0]==="Dynamix"?"dx":"vl"}">${s[0]}</span> ${esc(s[1])}</span>`).join("");
+  const sel=(f,opts)=>ed?`<select data-f="${f}" data-id="${a.id}" aria-label="${f==="dia"?"Día":"Especialidad"}">${opts.map(o=>`<option${a[f]===o?" selected":""}>${o}</option>`).join("")}</select>`:`<b>${esc(a[f])}</b>`;
+  return `<div class="it ${cls}" data-id="${a.id}">
+    <button type="button" class="handle" aria-label="Mover ${esc(a.act)} (flechas arriba y abajo)" ${ed?"":"tabindex=-1"}><svg width="16" height="22" viewBox="0 0 16 22" aria-hidden="true"><g fill="currentColor"><circle cx="5" cy="5" r="1.8"/><circle cx="11" cy="5" r="1.8"/><circle cx="5" cy="11" r="1.8"/><circle cx="11" cy="11" r="1.8"/><circle cx="5" cy="17" r="1.8"/><circle cx="11" cy="17" r="1.8"/></g></svg></button>
+    <span class="pos">${inP?i+1:"–"}</span>
+    <div class="eqc">${eqHtml}</div>
+    <div class="acc"><span class="a">${esc(a.act)} <span class="prio ${a.prio}">${a.prio}</span></span><span class="src">${src}</span></div>
+    <div class="sel1">${sel("esp",ESP)}</div><div class="sel2">${inP?sel("dia",DIAS):`<span class="hint">—</span>`}</div>
+    ${ed?`<button type="button" class="x" data-x="${a.id}" title="${inP?"Sacar del programa":"Meter al programa"}" aria-label="${inP?"Sacar del programa":"Meter al programa"}">${inP?"↓":"↑"}</button>`:"<span></span>"}
+  </div>`;
+}
+function cap(){const c=cutIx();if(c<=10)return;const out=D.order.slice(10,c);D.order=D.order.slice(0,10).concat(["__cut__"],out,D.order.slice(c+1));
+  toast(out.map(id=>A(id).act).join(" · ")+(out.length===1?" pasó":" pasaron")+" a espera: el máximo es 10.")}
+function mark(){cap();S.dirty=true;render()}
+function toggleOut(id){const o=D.order.filter(x=>x!==id),c=o.indexOf("__cut__");if(D.order.indexOf(id)<cutIx())o.splice(c+1,0,id);else o.splice(c,0,id);D.order=o;mark()}
+function keyMove(e){if(!editable())return;if(e.key!=="ArrowUp"&&e.key!=="ArrowDown")return;e.preventDefault();
+  const id=e.currentTarget.closest(".it").dataset.id,i=D.order.indexOf(id),j=e.key==="ArrowUp"?i-1:i+1;if(j<0||j>=D.order.length)return;
+  [D.order[i],D.order[j]]=[D.order[j],D.order[i]];mark();const h=$(`.it[data-id="${id}"] .handle`);if(h)h.focus()}
+
+/* ---------- arrastrar (puntero y touch) ---------- */
+let drag=null;
+function startDrag(e){
+  if(!editable())return;e.preventDefault();
+  const el=e.currentTarget.closest(".it"),L=$("#plist");const r=el.getBoundingClientRect();
+  const ph=el.cloneNode(true);ph.classList.add("ghost");ph.removeAttribute("data-id");
+  el.parentNode.insertBefore(ph,el);
+  el.classList.add("drag");Object.assign(el.style,{position:"fixed",left:r.left+"px",top:r.top+"px",width:r.width+"px",pointerEvents:"none"});
+  drag={el,ph,dy:e.clientY-r.top,id:el.dataset.id};
+  document.addEventListener("pointermove",moveDrag);document.addEventListener("pointerup",endDrag,{once:true});document.addEventListener("pointercancel",endDrag,{once:true});
+}
+function moveDrag(e){if(!drag)return;const {el,ph}=drag;el.style.top=(e.clientY-drag.dy)+"px";
+  const L=$("#plist");const kids=[...L.children].filter(c=>c!==el&&c!==ph&&(c.matches(".it")||c.matches("[data-cut]")));
+  let before=null;for(const c of kids){const b=c.getBoundingClientRect();if(e.clientY<b.top+b.height/2){before=c;break}}
+  if(before){if(before.previousElementSibling&&before.previousElementSibling.classList.contains("secl"))before=before.previousElementSibling;if(ph.nextElementSibling!==before)L.insertBefore(ph,before)}else L.appendChild(ph);
+  const m=60;if(e.clientY<m)window.scrollBy(0,-12);else if(e.clientY>innerHeight-m)window.scrollBy(0,12)}
+function endDrag(){if(!drag)return;document.removeEventListener("pointermove",moveDrag);
+  const {el,ph,id}=drag;ph.setAttribute("data-id",id);
+  const ord=[...$("#plist").children].filter(c=>c.matches("[data-cut]")||(c.matches(".it")&&c!==el)).map(c=>c.matches("[data-cut]")?"__cut__":c.dataset.id);
+  drag=null;el.remove();
+  if(ord.join()!==D.order.join()){D.order=ord;mark()}else render()}
+
+/* ---------- elegir equipo ---------- */
+function pickEq(id){
+  const a=A(id);$("#mT").textContent="Equipo SAP para: "+a.act;
+  $("#mB").innerHTML=`<p class="sub" style="margin:0">${a.dyn?`En Dynamix se llama <b>${esc(a.dyn)}</b>. `:""}Busca por nombre, número de equipo o campo clasificador en el listado de Envase (${CAT.size} equipos).</p>
+    <input type="search" id="eqQ" placeholder="Ej. plano abrible, 11698, 721-40" value="${esc((a.dyn||"").replace(/^\|?\d+\s*/,"").split(" ").slice(0,2).join(" "))}">
+    <div class="eqlist" id="eqL"></div>${a.eq?`<div><button type="button" id="eqOk" class="primary">Confirmar ${esc(CAT.get(a.eq)?CAT.get(a.eq).den:a.eq)}</button></div>`:""}`;
+  const norm=s=>String(s).normalize("NFD").replace(/[\u0300-\u036f]/g,"").toUpperCase();
+  const draw=()=>{const q=norm($("#eqQ").value.trim()).split(/\s+/).filter(Boolean);
+    const m=[...CAT.values()].filter(e=>{const t=norm(e.den+" "+e.eq+" "+e.cc+" "+e.utd);return q.every(w=>t.includes(w))}).slice(0,80);
+    $("#eqL").innerHTML=m.map(e=>`<button type="button" data-e="${e.eq}"><span class="mono">${esc(e.cc)}</span><span class="mono">${e.eq}</span><span>${esc(e.den)} <span class="hint">· ${esc(e.utd)}${e.sup&&CAT.get(e.sup)?" · de "+esc(CAT.get(e.sup).den):""}</span></span></button>`).join("")||`<div class="hint" style="padding:12px">Sin resultados</div>`;
+    $$("#eqL [data-e]").forEach(b=>b.onclick=()=>{a.eq=b.dataset.e;a.ok=true;$("#modal").hidden=true;mark();toast("Equipo asignado.")})};
+  $("#eqQ").oninput=draw;draw();if($("#eqOk"))$("#eqOk").onclick=()=>{a.ok=true;$("#modal").hidden=true;mark()};
+  $("#modal").hidden=false;$("#eqQ").focus();
+}
+$("#mX").onclick=()=>$("#modal").hidden=true;$("#modal").onclick=e=>{if(e.target.id==="modal")$("#modal").hidden=true};
+document.addEventListener("keydown",e=>{if(e.key==="Escape")$("#modal").hidden=true});
+
+/* ---------- tickets para SAP ---------- */
+function avisoRows(){return inProg().map((a,i)=>{const e=eqInfo(a);return {a,i,e,ps:prioSap(i)}})}
+const ptoT=e=>e==="ELEC"?"ELE":e;
+function textoLargo(a){return a.det+"\n"+a.src.map(s=>s[0]+": "+s[1]+(s[3]?" ("+s[3]+")":"")).join("\n")}
+function campos(r){const e=r.e;return [["Equipo",e?e.eq:""],["Ubicación técnica",e?e.ut:""],["Descripción breve",r.a.act],["Prioridad",String(r.ps)],["Pto. trabajo resp.",ptoT(r.a.esp)],["Centro planif.","EG86"],["Texto largo",textoLargo(r.a)]]}
+async function copiar(t){try{await navigator.clipboard.writeText(t);return true}catch(e){}
+  try{const x=document.createElement("textarea");x.value=t;x.style.position="fixed";x.style.opacity="0";document.body.appendChild(x);x.select();const ok=document.execCommand("copy");x.remove();return ok}catch(e){return false}}
+function renderSap(){
+  const apr=D.estado==="aprobado",R=avisoRows(),T=D.tickets||{},canW=S.canEdit!==false;
+  const hechos=R.filter(r=>(T[r.a.id]||{}).av).length;
+  let h=`<div class="kpis"><div class="kpi hero"><span class="lbl">Tickets</span><span class="v">${hechos}<small style="font-size:16px;opacity:.8"> / ${R.length}</small></span><span class="sub">Avisos creados</span></div>
+    <div class="kpi"><span class="lbl">Estado del programa</span><span class="v" style="font-size:22px;color:${apr?"var(--ok)":"var(--warn)"}">${apr?"Aprobado":"Pendiente"}</span><span class="sub">${apr?fTs(D.aprob.ts):"Sin aprobar"}</span></div></div>
+    <div style="display:flex;justify-content:flex-end"><button type="button" id="bSapX">Descargar tickets (Excel)</button></div><div class="tks">`;
+  h+=R.map(r=>{const t=T[r.a.id]||{},F=campos(r);
+    return `<article class="tk${t.av?" done":""}" data-tk="${r.a.id}">
+      <header><span class="pos">${r.i+1}</span><div style="min-width:0"><b>${esc(r.a.act)}</b><div class="hint">${r.e?esc(r.e.cc)+" · "+esc(r.e.den):esc(r.a.dyn||"")} · ${esc(r.a.dia)}</div></div>
+        ${t.av?`<span class="state apr">Aviso ${esc(t.av)}</span>`:`<span class="state prop">Por crear</span>`}</header>
+      ${r.e?`<dl class="fl">${F.map(([k,v],j)=>`<div class="${k==="Texto largo"?"wide":k==="Descripción breve"?"w2":""}"><dt>${k}</dt><dd><span class="${k==="Texto largo"?"":"mono"}">${esc(v).replace(/\n/g,"<br>")}</span><button type="button" class="cp" data-cp="${j}" aria-label="Copiar ${k}">Copiar</button></dd></div>`).join("")}</dl>
+      <div class="tkf"><button type="button" class="primary" data-all>Copiar todo</button>
+        ${canW?`<label class="avin">Nº de aviso <input type="text" inputmode="numeric" value="${esc(t.av||"")}" data-av placeholder="—"></label><button type="button" data-savav>Guardar</button>`:""}</div>`
+      :`<div class="sub" style="color:var(--bad)">Equipo SAP sin asignar.</div>`}
+    </article>`}).join("");
+  $("#sapBody").innerHTML=h+`</div>`;
+  $("#bSapX").onclick=xlsSap;
+  $$("#sapBody [data-tk]").forEach(c=>{const r=R.find(x=>x.a.id===c.dataset.tk);if(!r||!r.e)return;const F=campos(r);
+    c.querySelectorAll("[data-cp]").forEach(b=>b.onclick=async()=>toast(await copiar(F[+b.dataset.cp][1])?F[+b.dataset.cp][0]+" copiado":"No se pudo copiar"));
+    c.querySelector("[data-all]").onclick=async()=>toast(await copiar(F.map(([k,v])=>k+": "+v).join("\n"))?"Ticket copiado":"No se pudo copiar");
+    const sv=c.querySelector("[data-savav]");if(sv)sv.onclick=async()=>{const v=c.querySelector("[data-av]").value.trim();D.tickets=D.tickets||{};if(v)D.tickets[r.a.id]={av:v};else delete D.tickets[r.a.id];render();const st=await persist("Aviso guardado.");if(st==="local")toast("Aviso guardado.")}});
+}
+
+/* ---------- Excel ---------- */
+function wbSave(wb,name){const buf=XLSX.write(wb,{bookType:"xlsx",type:"array"});return saveFile(name,buf)}
+function xlsProg(){if(typeof XLSX==="undefined")return toast("No se pudo cargar la librería de Excel.");
+  const rows=[["","SEMANA "+D.semana],["Programa de Mantenimiento"],["Planta Guadalajara"],[D.estado==="aprobado"?"Aprobado "+fTs(D.aprob.ts):"Propuesta (sin aprobar)"],[]];
+  const P=inProg();
+  DIAS.forEach(dia=>{const L=P.filter(a=>a.dia===dia);if(!L.length)return;
+    rows.push([dia]);rows.push(["#","Campo clasificador","Descripción de equipo","Área","OT","Descripción actividad OT","Especialidad","Estatus","Prioridad"]);
+    L.forEach(a=>{const i=D.order.indexOf(a.id),e=eqInfo(a),t=(D.tickets||{})[a.id]||{};rows.push([i+1,e?e.cc:"(por elegir)",e?e.den:(a.dyn||""),e?e.utd:"",t.ot||"",a.act,a.esp,"PLAN",i<5?"Urgente":"Programada"])});rows.push([])});
+  const W=waiting();if(W.length){rows.push(["EN ESPERA"]);W.forEach(a=>{const e=eqInfo(a);rows.push(["",e?e.cc:"",e?e.den:(a.dyn||""),e?e.utd:"","",a.act,a.esp,"ESPERA",""])})}
+  const ws=XLSX.utils.aoa_to_sheet(rows);ws["!cols"]=[{wch:4},{wch:16},{wch:38},{wch:24},{wch:14},{wch:44},{wch:12},{wch:9},{wch:11}];
+  const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,"Semana "+D.semana);wbSave(wb,`Programa_Semana_${D.semana}.xlsx`)}
+function xlsSap(){if(typeof XLSX==="undefined")return toast("No se pudo cargar la librería de Excel.");
+  const T=D.tickets||{};const rows=avisoRows().map(r=>({"#":r.i+1,"Aviso SAP":(T[r.a.id]||{}).av||"","Equipo":r.e?r.e.eq:"","Campo clasif.":r.e?r.e.cc:"","Denominación equipo":r.e?r.e.den:"","Ubicación técnica":r.e?r.e.ut:"","Descripción breve":r.a.act,"Texto largo":textoLargo(r.a).replace(/\n/g," | "),"Prioridad":r.ps,"Pto. trabajo resp.":ptoT(r.a.esp),"Centro planif.":"EG86","Día":r.a.dia}));
+  const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(rows),"Tickets");wbSave(wb,`Tickets_SAP_Semana_${D.semana}.xlsx`)}
+async function saveFile(name,buf){
+  if(S.dl){try{const r=await S.dl.save({filename:name,data:buf});if(r&&r.status==="saved")toast("Archivo descargado.");return}catch(e){if(e&&e.code!=="unavailable"){toast("No se descargó el archivo.");return}}}
+  try{const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([buf]));a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},2000)}catch(e){toast("La descarga no está disponible en esta vista.")}}
+$("#bXls").onclick=xlsProg;
+
+/* ---------- guardar: la página se publica de nuevo con el programa dentro ---------- */
+const RESET=':root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}';
+const HEAD='<title>CEMEX GDL Programa de Mantenimiento</title>\n<meta name="claude:viewport-fit-sides" content="cover">\n<link rel="preconnect" href="https://fonts.googleapis.com">\n<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=Source+Sans+3:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">\n';
+function pageHTML(){const g=id=>document.getElementById(id).outerHTML;
+  const frag=HEAD+g("pg-css")+"\n"+g("pg-shell")+'\n<div id="pg-root"></div>\n'+g("pg-mount")+'\n<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"><\/script>\n'+g("pg-cat")+'\n<script type="application/json" id="pg-data">'+JSON.stringify(D).replace(/</g,"\\u003c")+'<\/script>\n'+g("pg-app");
+  if(window.ECO&&window.ECO.wrap)return window.ECO.wrap("programa",frag);
+  return '<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>'+RESET+'</style></head><body>'+frag+'</body></html>'}
+async function persist(note){
+  if(S.nube){if(!S.nube.clave()){S.canEdit=false;render();return "readonly"}
+    try{await S.nube.guardar("programa",D);S.dirty=false;render();toast(note||"Guardado.");return "saved"}
+    catch(e){if(e&&e.code==="clave"){S.canEdit=false;render();toast("Inicia sesión para guardar.");return "readonly"}toast("No se pudo guardar. Intenta de nuevo.");return "error"}}
+  if(S.art&&S.canEdit!==false){
+    try{sessionStorage.setItem("pg.note",note||"Guardado.")}catch(e){}
+    try{await S.art.publish(pageHTML());S.dirty=false;return "published"}
+    catch(e){try{sessionStorage.removeItem("pg.note")}catch(_){}const c=e&&e.code;
+      if(["not_writer","not_granted","consent_required","capability_disabled","capability_removed","not_declared"].includes(c)){S.canEdit=false;render();toast("Esta vista es de solo lectura: no se guardó.");return "readonly"}
+      if(c==="conflict"){toast("Alguien guardó al mismo tiempo; la página se recarga.");return "conflict"}
+      toast("No se pudo guardar. Intenta de nuevo.");return "error"}}
+  return "local";
+}
+$("#bSave").onclick=async()=>{const r=await persist("Cambios guardados.");if(r==="local"){S.dirty=false;render();toast("Cambios aplicados en esta vista (no está publicada en Claude).")}};
+$("#bApr").onclick=async()=>{const P=inProg();if(!P.length)return toast("No hay actividades en el programa.");if(P.length>10)return toast("Deja máximo 10 actividades arriba de la línea.");
+  D.estado="aprobado";D.aprob={ts:Date.now()};render();const r=await persist("Programa aprobado.");if(r==="local")toast("Programa aprobado.")};
+$("#bReopen").onclick=async()=>{D.estado="propuesta";D.aprob=null;render();const r=await persist("Programa reabierto para cambios.");if(r==="local")toast("Programa reabierto.")};
+window.addEventListener("beforeunload",e=>{if(S.dirty){e.preventDefault();e.returnValue=""}});
+
+/* ---------- pestañas y arranque ---------- */
+function setTab(t){S.tab=t;$$("#tabs [role=tab]").forEach(b=>b.setAttribute("aria-selected",b.dataset.t===t));$$("[data-view]").forEach(v=>v.hidden=v.id!=="v-"+t);try{localStorage.setItem("pg.tab",t)}catch(e){}}
+$$("#tabs [role=tab]").forEach(b=>b.onclick=()=>setTab(b.dataset.t));
+try{const t=localStorage.getItem("pg.tab");if(t&&$("#v-"+t))setTab(t)}catch(e){}
+if(window.ECO&&window.ECO.nube)S.canEdit=false;
+render();
+try{const n=sessionStorage.getItem("pg.note");if(n){sessionStorage.removeItem("pg.note");setTimeout(()=>toast(n),400)}}catch(e){}
+(async function(){const use=n=>window.claude&&window.claude.use?window.claude.use(n).catch(()=>null):Promise.resolve(null);
+  const nube=window.ECO&&window.ECO.nube;
+  if(nube){const d=await nube.leer("programa");if(d!==undefined){S.nube=nube;if(d)D=d;S.canEdit=!!nube.clave()}render();return}
+  const [art,dl,us]=await Promise.all([use("artifact"),use("downloads"),use("user")]);S.art=art;S.dl=dl;
+  if(us&&us.canEdit){try{S.canEdit=!!(await us.canEdit())}catch(e){}}render()})();
+</script>
