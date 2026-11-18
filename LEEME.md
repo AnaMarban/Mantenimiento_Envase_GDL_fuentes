@@ -12,6 +12,11 @@ Para que lo que se carga o se aprueba lo vean todos, el sitio guarda los datos e
 
 Quien no inicia sesión ve todo en modo consulta: sin botones de cargar, aprobar ni capturar avisos. Con sesión iniciada se carga Ventolink y Dynamix, se ordena y aprueba el programa y se capturan avisos; al guardar, lo ven todos.
 
+## Programa semanal e historial
+El Programa de Mantenimiento avanza automaticamente al lunes de la semana actual y actualiza su numero ISO de semana. Si no se ha cargado una propuesta nueva, conserva las actividades de la semana anterior y muestra un aviso para revisarlas; al cambiar de semana reinicia la aprobacion, los avisos SAP y las marcas de actividad hecha.
+
+Con sesion iniciada, marca **Marcar hecha** en cada actividad realizada. El registro compartido incluye equipo, actividad, especialidad, semana y fecha; se consulta en la pestana **Historial de mantenimiento**. Deshacer la marca elimina ese registro del historial.
+
 ## Cómo se modifica
 1. Cambia lo que necesites en `base/` o en `programas/`.
 2. Ejecuta `python construir.py` → genera `sitio/index.html`.

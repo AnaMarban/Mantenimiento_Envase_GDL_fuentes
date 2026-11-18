@@ -84,6 +84,9 @@ button.pend{cursor:pointer}
 .cut::before,.cut::after{content:"";flex:1;border-top:2px dashed var(--line-strong)}
 .cut.over{color:var(--bad)}.cut.over::before,.cut.over::after{border-color:var(--bad)}
 .secl{font-family:var(--font-d);font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--fg-3);padding:6px 2px 0}
+.done-btn{padding:2px 8px;font-size:12px;color:var(--ok);border-color:#a9d3b7;background:var(--ok-soft)}
+.done-btn[aria-pressed=true]{background:var(--ok);border-color:var(--ok);color:#fff}
+.hist-empty{padding:18px;border:1px dashed var(--line-strong);border-radius:var(--r);color:var(--fg-2)}
 @media (max-width:900px){.it{grid-template-columns:34px 26px minmax(0,1fr) 34px;row-gap:6px}.it .eqc{grid-column:3}.it .acc{grid-column:3}.it .sel1,.it .sel2{grid-column:3}.it .x{grid-row:1;grid-column:4}}
 
 .tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r)}
@@ -135,6 +138,7 @@ table.t td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:t
     <nav class="tabs" role="tablist" id="tabs">
       <button role="tab" data-t="prog" aria-selected="true">Programa</button>
       <button role="tab" data-t="sap" aria-selected="false">Tickets SAP</button>
+      <button role="tab" data-t="hist" aria-selected="false">Historial de mantenimiento</button>
     </nav>
   </div>
 </header>
@@ -148,6 +152,9 @@ table.t td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:t
   </section>
   <section id="v-sap" data-view hidden>
     <div id="sapBody" style="display:grid;gap:14px"></div>
+  </section>
+  <section id="v-hist" data-view hidden>
+    <div id="histBody" style="display:grid;gap:14px"></div>
   </section>
 </main>
 <div id="modal" class="overlay" hidden><div class="mp" role="dialog" aria-modal="true" aria-labelledby="mT"><div style="display:flex;justify-content:space-between;gap:8px;align-items:center"><h2 id="mT">Elegir equipo SAP</h2><button type="button" id="mX">Cerrar</button></div><div id="mB" style="display:grid;gap:10px"></div></div></div>
@@ -178,18 +185,55 @@ const editable=()=>S.canEdit!==false&&D.estado!=="aprobado";
 function eqInfo(a){const e=a.eq?CAT.get(a.eq):null;if(!e)return null;const p=e.sup?CAT.get(e.sup):null;return Object.assign({},e,{parent:p})}
 function fDate(iso,add){const d=new Date(Date.parse(iso+"T12:00:00Z")+(add||0)*864e5);return d.getUTCDate()+" "+["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"][d.getUTCMonth()]}
 const fTs=ts=>new Date(ts).toLocaleString("es-MX",{day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"});
+function isoDate(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
+function isoWeek(iso){const d=new Date(iso+"T00:00:00Z");d.setUTCDate(d.getUTCDate()+4-(d.getUTCDay()||7));const y=new Date(Date.UTC(d.getUTCFullYear(),0,1));return Math.ceil((((d-y)/86400000)+1)/7)}
+function currentMonday(){const d=new Date();d.setHours(12,0,0,0);d.setDate(d.getDate()-((d.getDay()+6)%7));return isoDate(d)}
+function avanceSemana(){
+  if(!D||!D.lunes)return false;
+  const lunes=currentMonday();if(lunes<=D.lunes)return false;
+  D.hist=Array.isArray(D.hist)?D.hist:[];
+  D.acts.forEach(a=>{
+    if(a.hecho){
+      const id=D.lunes+":"+a.id;
+      if(!D.hist.some(h=>h.id===id))D.hist.push({id,actividadId:a.id,semana:D.semana,lunes:D.lunes,equipo:a.eq||"",equipoNombre:(eqInfo(a)||{}).den||a.dyn||"",actividad:a.act,esp:a.esp,dia:a.dia,ts:a.hechoTs||Date.now()});
+    }
+    delete a.hecho;delete a.hechoTs;
+  });
+  D.lunes=lunes;D.semana=isoWeek(lunes);D.estado="propuesta";D.aprob=null;D.tickets={};D.avisoSemana=true;
+  S.dirty=S.canEdit!==false;
+  return true;
+}
+function historialId(a){return D.lunes+":"+a.id}
+function toggleHecho(id){
+  const a=A(id);if(!a||S.canEdit===false)return;
+  D.hist=Array.isArray(D.hist)?D.hist:[];
+  a.hecho=!a.hecho;
+  const key=historialId(a);
+  if(a.hecho){
+    a.hechoTs=Date.now();
+    const e=eqInfo(a);
+    if(!D.hist.some(h=>h.id===key))D.hist.push({id:key,actividadId:a.id,semana:D.semana,lunes:D.lunes,equipo:a.eq||"",equipoNombre:e?e.den:(a.dyn||"Equipo"),actividad:a.act,esp:a.esp,dia:a.dia,ts:a.hechoTs});
+  }else{
+    delete a.hechoTs;
+    D.hist=D.hist.filter(h=>h.id!==key);
+  }
+  mark();
+  persist(a.hecho?"Actividad registrada como hecha.":"Se deshizo el registro de la actividad.");
+}
 
 /* ---------- render ---------- */
 function render(){
   if(!D){$("#plist").innerHTML=`<div class="banner">No hay una propuesta cargada.</div>`;return}
   const P=inProg(),W=waiting(),apr=D.estado==="aprobado",ed=editable();
-  $("#hstat").innerHTML=`<div class="hi"><span class="lbl">Semana</span><b>${D.semana} · ${fDate(D.lunes)} – ${fDate(D.lunes,5)}</b></div><div class="hi"><span class="lbl">Datos de</span><b>${esc(D.datos)}</b></div>
+  $("#hstat").innerHTML=`<div class="hi"><span class="lbl">Semana</span><b>${D.semana} · ${fDate(D.lunes)} – ${fDate(D.lunes,6)}</b></div><div class="hi"><span class="lbl">Datos de</span><b>${esc(D.datos)}</b></div>
     <span class="state ${apr?"apr":"prop"}">${apr?"✓ Aprobado "+fTs(D.aprob.ts):"Propuesta · falta aprobar"}</span>`;
   $("#bSave").hidden=S.canEdit===false||!S.dirty;$("#bApr").hidden=!ed;$("#bReopen").hidden=!(apr&&S.canEdit!==false);
   const sinEq=P.filter(a=>!a.eq||!a.ok).length;
-  $("#pBanner").innerHTML=sinEq&&!apr&&S.canEdit!==false?`<div class="banner warn">${sinEq} ${sinEq===1?"actividad sin equipo SAP":"actividades sin equipo SAP"}</div>`:"";
+  $("#pBanner").innerHTML=(D.avisoSemana?`<div class="banner">Semana actualizada automáticamente. Se conservaron las actividades del programa anterior; valida o carga la propuesta de esta semana.</div>`:"")+(sinEq&&!apr&&S.canEdit!==false?`<div class="banner warn">${sinEq} ${sinEq===1?"actividad sin equipo SAP":"actividades sin equipo SAP"}</div>`:"");
   const al=P.filter(a=>a.prio==="alta").length;
+  const hechos=P.filter(a=>a.hecho).length;
   $("#kpis").innerHTML=`<div class="kpi hero"><span class="lbl">En el programa</span><span class="v">${P.length}<small style="font-size:16px;opacity:.8"> / 10</small></span><span class="sub">${Math.min(5,P.length)} urgentes</span></div>
+    <div class="kpi"><span class="lbl">Actividades hechas</span><span class="v">${hechos}<small style="font-size:16px;opacity:.8"> / ${P.length}</small></span><span class="sub">Registradas esta semana</span></div>
     <div class="kpi"><span class="lbl">En espera</span><span class="v">${W.length}</span><span class="sub">Quedan para otra semana</span></div>
     <div class="kpi"><span class="lbl">Prioridad alta</span><span class="v" style="color:var(--bad)">${al}</span><span class="sub">De ${D.acts.filter(a=>a.prio==="alta").length} detectadas</span></div>
     <div class="kpi"><span class="lbl">Por especialidad</span><span class="v" style="font-size:22px">${ESP.map(e=>e+" "+P.filter(a=>a.esp===e).length).join(" · ")}</span><span class="sub">Actividades del programa</span></div>`;
@@ -203,11 +247,13 @@ function render(){
   L.innerHTML=h;
   if(!P.length)L.querySelector(".secl").insertAdjacentHTML("afterend",`<div class="banner">Arrastra actividades arriba de la línea.</div>`);
   L.querySelectorAll("[data-x]").forEach(b=>b.onclick=()=>toggleOut(b.dataset.x));
+  L.querySelectorAll("[data-done]").forEach(b=>b.onclick=()=>toggleHecho(b.dataset.done));
   L.querySelectorAll("select[data-f]").forEach(s=>s.onchange=()=>{const a=A(s.dataset.id);a[s.dataset.f]=s.value;mark()});
   L.querySelectorAll("[data-eq]").forEach(b=>b.onclick=()=>pickEq(b.dataset.eq));
   L.querySelectorAll(".handle").forEach(hd=>hd.addEventListener("pointerdown",startDrag));
   L.querySelectorAll(".handle").forEach(hd=>hd.addEventListener("keydown",keyMove));
   renderSap();
+  renderHist();
 }
 function row(a,i,inP){
   const e=eqInfo(a),ed=editable();
@@ -215,15 +261,20 @@ function row(a,i,inP){
   const eqHtml=e?`<span class="cc">${esc(e.cc)} · ${esc(e.eq)}</span><span class="dn">${esc(e.den)}</span><span class="ar">${esc(e.utd)}${e.parent?" · de "+esc(e.parent.den):""}</span>${a.ok?"":`<button type="button" class="pend" data-eq="${a.id}"${S.canEdit!==false?"":" disabled"}>Confirmar equipo SAP</button>`}`
     :`<span class="dn">${esc(a.dyn||"Equipo")}</span><span class="ar">Nombre en Dynamix</span><button type="button" class="pend" data-eq="${a.id}"${S.canEdit!==false?"":" disabled"}>Elegir equipo SAP</button>`;
   const src=a.src.map(s=>`<span><span class="tag ${s[0]==="Dynamix"?"dx":"vl"}">${s[0]}</span> ${esc(s[1])}</span>`).join("");
+  const done=inP?`<button type="button" class="done-btn" data-done="${a.id}" aria-pressed="${a.hecho?"true":"false"}"${S.canEdit===false?" disabled":""}>${a.hecho?"✓ Hecha · deshacer":"Marcar hecha"}</button>`:"";
   const sel=(f,opts)=>ed?`<select data-f="${f}" data-id="${a.id}" aria-label="${f==="dia"?"Día":"Especialidad"}">${opts.map(o=>`<option${a[f]===o?" selected":""}>${o}</option>`).join("")}</select>`:`<b>${esc(a[f])}</b>`;
   return `<div class="it ${cls}" data-id="${a.id}">
     <button type="button" class="handle" aria-label="Mover ${esc(a.act)} (flechas arriba y abajo)" ${ed?"":"tabindex=-1"}><svg width="16" height="22" viewBox="0 0 16 22" aria-hidden="true"><g fill="currentColor"><circle cx="5" cy="5" r="1.8"/><circle cx="11" cy="5" r="1.8"/><circle cx="5" cy="11" r="1.8"/><circle cx="11" cy="11" r="1.8"/><circle cx="5" cy="17" r="1.8"/><circle cx="11" cy="17" r="1.8"/></g></svg></button>
     <span class="pos">${inP?i+1:"–"}</span>
     <div class="eqc">${eqHtml}</div>
-    <div class="acc"><span class="a">${esc(a.act)} <span class="prio ${a.prio}">${a.prio}</span></span><span class="src">${src}</span></div>
+    <div class="acc"><span class="a">${esc(a.act)} <span class="prio ${a.prio}">${a.prio}</span></span><span class="src">${src}${done}</span></div>
     <div class="sel1">${sel("esp",ESP)}</div><div class="sel2">${inP?sel("dia",DIAS):`<span class="hint">—</span>`}</div>
     ${ed?`<button type="button" class="x" data-x="${a.id}" title="${inP?"Sacar del programa":"Meter al programa"}" aria-label="${inP?"Sacar del programa":"Meter al programa"}">${inP?"↓":"↑"}</button>`:"<span></span>"}
   </div>`;
+}
+function renderHist(){
+  const H=Array.isArray(D.hist)?D.hist.slice().sort((a,b)=>(b.ts||0)-(a.ts||0)):[];
+  $("#histBody").innerHTML=H.length?`<div class="banner">Mantenimientos registrados: ${H.length}</div><div class="tbl-wrap"><table class="t"><thead><tr><th>Fecha realizada</th><th>Semana</th><th>Equipo</th><th>Actividad</th><th>Especialidad</th><th>Día programado</th></tr></thead><tbody>${H.map(h=>`<tr><td>${esc(new Date(h.ts).toLocaleString("es-MX",{day:"2-digit",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"}))}</td><td>${esc(String(h.semana))} · ${esc(fDate(h.lunes))} – ${esc(fDate(h.lunes,6))}</td><td><b>${esc(h.equipo||"")}</b>${h.equipoNombre?`<br><span class="sub">${esc(h.equipoNombre)}</span>`:""}</td><td>${esc(h.actividad||"")}</td><td>${esc(h.esp||"")}</td><td>${esc(h.dia||"")}</td></tr>`).join("")}</tbody></table></div>`:`<div class="hist-empty">Aún no hay actividades completadas. Al marcar una actividad como hecha aparecerá aquí con su equipo y fecha.</div>`;
 }
 function cap(){const c=cutIx();if(c<=10)return;const out=D.order.slice(10,c);D.order=D.order.slice(0,10).concat(["__cut__"],out,D.order.slice(c+1));
   toast(out.map(id=>A(id).act).join(" · ")+(out.length===1?" pasó":" pasaron")+" a espera: el máximo es 10.")}
@@ -356,7 +407,7 @@ render();
 try{const n=sessionStorage.getItem("pg.note");if(n){sessionStorage.removeItem("pg.note");setTimeout(()=>toast(n),400)}}catch(e){}
 (async function(){const use=n=>window.claude&&window.claude.use?window.claude.use(n).catch(()=>null):Promise.resolve(null);
   const nube=window.ECO&&window.ECO.nube;
-  if(nube){const d=await nube.leer("programa");if(d!==undefined){S.nube=nube;if(d)D=d;S.canEdit=!!nube.clave()}render();return}
+  if(nube){const d=await nube.leer("programa");if(d!==undefined){S.nube=nube;if(d)D=d;S.canEdit=!!nube.clave()}const cambio=avanceSemana();render();if(cambio&&S.canEdit)await persist("Programa actualizado a la semana actual.");return}
   const [art,dl,us]=await Promise.all([use("artifact"),use("downloads"),use("user")]);S.art=art;S.dl=dl;
-  if(us&&us.canEdit){try{S.canEdit=!!(await us.canEdit())}catch(e){}}render()})();
+  if(us&&us.canEdit){try{S.canEdit=!!(await us.canEdit())}catch(e){}}const cambio=avanceSemana();render();if(cambio&&S.canEdit)await persist("Programa actualizado a la semana actual.")})();
 </script>
